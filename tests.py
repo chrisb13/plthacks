@@ -33,11 +33,16 @@ def Grid_example(plotoutputs):
         plotdict[cnt]=np.random.rand(20,15)
         dimlab[cnt]=('xlabel','ylabel')
 
-    plth.Grid(plotdict,(4,3),sharex=True,outputpath=plotoutputs+'GridEgShareX.png')
-    plth.Grid(plotdict,(4,3),sharey=True,outputpath=plotoutputs+'GridEgSHareY.png')
-    plth.Grid(plotdict,(4,3),sharex=True,sharey=True,outputpath=plotoutputs+'GridEgShareXShareY.png')
-    plth.Grid(plotdict,(4,3),dimlabels=dimlab,outputpath=plotoutputs+'GridEgDimLab.png')
-    plth.Grid(plotdict,(4,3),sharex=True,sharey=True,dimlabels=dimlab,outputpath=plotoutputs+'GridEgShareXShareYDimLab.png')
+    # plth.Grid(plotdict,(4,3),dimlabels=dimlab,sepcbar=True,outputpath=plotoutputs+'GridEgDimLabSepcbar.png')
+
+    #not recommended right now...
+    # plth.Grid(plotdict,(4,3),sharex=True,sharey=True,sepcbar=True,outputpath=plotoutputs+'GridEgShareXShareYSepcbar.png') 
+
+    # plth.Grid(plotdict,(4,3),sharex=True,outputpath=plotoutputs+'GridEgShareX.png')
+    # plth.Grid(plotdict,(4,3),sharey=True,outputpath=plotoutputs+'GridEgSHareY.png')
+    # plth.Grid(plotdict,(4,3),sharex=True,sharey=True,outputpath=plotoutputs+'GridEgShareXShareY.png')
+    # plth.Grid(plotdict,(4,3),dimlabels=dimlab,outputpath=plotoutputs+'GridEgDimLab.png')
+    # plth.Grid(plotdict,(4,3),sharex=True,sharey=True,dimlabels=dimlab,outputpath=plotoutputs+'GridEgShareXShareYDimLab.png')
 
 if __name__ == "__main__": 
     from _cblogger import _LogStart

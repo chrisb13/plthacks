@@ -27,6 +27,11 @@ import os
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes, zoomed_inset_axes
 from mpl_toolkits.axes_grid1.anchored_artists import AnchoredSizeBar
 
+#for multiple plots
+#from:http://stackoverflow.com/questions/18266642/multiple-imshow-subplots-each-with-colorbar 
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+from matplotlib.ticker import MultipleLocator
+
 def mkdir(p):
     """make directory of path that is passed"""
     try:
@@ -72,6 +77,7 @@ class Grid(object):
     sharex (optional): share all the x axis in the grid
     sharey (optional): share all the y axis in the grid
     dimlabels (optional): dictionary containing tuples of xlabel and ylabels 
+    sepcbar (optional): separate colorbars for each subplot (True or False)
     outputpath (optional): full path of file to put plot in (if left out it won't be created)
 
     Returns
@@ -97,11 +103,12 @@ class Grid(object):
     >>> plth.Grid(plotdict,(4,3),dimlabels=dimlab,outputpath=plotoutputs+'GridEgDimLab.png')
     >>> plth.Grid(plotdict,(4,3),sharex=True,sharey=True,dimlabels=dimlab,outputpath=plotoutputs+'GridEgShareXShareYDimLab.png')
     """
-    def __init__(self, pdict,pdims,sharex=False,sharey=False,dimlabels={},outputpath=''):
+    def __init__(self, pdict,pdims,sharex=False,sharey=False,dimlabels={},sepcbar=False,outputpath=''):
         _lg.info("Creating a gridded plot from your passed dict")
         self.pdict,self.pdims = pdict,pdims
         self.sharex,self.sharey=sharex,sharey
         self.dimlabels=dimlabels
+        self.sepcbar=sepcbar
         self.outputpath=outputpath
         self.mkplot()
 
@@ -121,13 +128,22 @@ class Grid(object):
         
         if self.sharex:
             hs=.06
+
         else:
             hs=.225
+
+        #make more space for separate colorbar..
+        if self.sepcbar:
+            hs+=.06
 
         if self.sharey:
             ys=.06
         else:
             ys=.08
+
+        #make more space for lots of ylabels..
+        if not self.sharey:
+            ys+=.06
 
         gs = gridspec.GridSpec(self.pdims[0], self.pdims[1],hspace=hs,wspace=ys)
 
@@ -181,7 +197,15 @@ class Grid(object):
 
                 # self.pdict[name]=self.pdict[name].append(ax)
                 self.paxis[name]=ax
-                ax.contourf(field)
+                cs1=ax.contourf(field)
+
+                if self.sepcbar:
+                    #separate colorbars
+                    # Create divider for existing axes instance
+                    divider = make_axes_locatable(ax)
+                    # Append axes to the right of ax, with 20% width of ax
+                    caxis = divider.append_axes("bottom", size="10%", pad=0.45)
+                    plt.colorbar(cs1,cax=caxis,orientation='horizontal')
 
                 # make xlabels invisible
                 if self.sharex and rownum<self.pdims[0]-1:
