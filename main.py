@@ -102,11 +102,11 @@ class Grid(object):
     >>>     plotdict[cnt]=np.random.rand(20,15)
     >>>     dimlab[cnt]=('xlabel','ylabel')
 
-    >>> plth.Grid(plotdict,(4,3),sharex=True,outputpath=plotoutputs+'GridEgShareX.png')
-    >>> plth.Grid(plotdict,(4,3),sharey=True,outputpath=plotoutputs+'GridEgSHareY.png')
-    >>> plth.Grid(plotdict,(4,3),sharex=True,sharey=True,outputpath=plotoutputs+'GridEgShareXShareY.png')
-    >>> plth.Grid(plotdict,(4,3),dimlabels=dimlab,outputpath=plotoutputs+'GridEgDimLab.png')
-    >>> plth.Grid(plotdict,(4,3),sharex=True,sharey=True,dimlabels=dimlab,outputpath=plotoutputs+'GridEgShareXShareYDimLab.png')
+    >>> Grid(plotdict,(4,3),sharex=True,outputpath=plotoutputs+'GridEgShareX.png')
+    >>> Grid(plotdict,(4,3),sharey=True,outputpath=plotoutputs+'GridEgSHareY.png')
+    >>> Grid(plotdict,(4,3),sharex=True,sharey=True,outputpath=plotoutputs+'GridEgShareXShareY.png')
+    >>> Grid(plotdict,(4,3),dimlabels=dimlab,outputpath=plotoutputs+'GridEgDimLab.png')
+    >>> Grid(plotdict,(4,3),sharex=True,sharey=True,dimlabels=dimlab,outputpath=plotoutputs+'GridEgShareXShareYDimLab.png')
     """
     def __init__(self, pdict,pdims,sharex=False,sharey=False,clevels=0,dimlabels={},sepcbar=False,globalcbar='False',cbars={},outputpath=''):
         _lg.info("Creating a gridded plot from your passed dict")
@@ -120,7 +120,7 @@ class Grid(object):
         self.outputpath=outputpath
         self.mkplot()
 
-    def mkplot(self ):
+    def mkplot(self):
         """@todo: Docstring for mkplot
         :returns: @todo
         """
@@ -154,12 +154,10 @@ class Grid(object):
         if not self.sharey:
             ys+=.08
 
-
         #working out the global min and maxes of all fields so we can have one colourbar
         if self.globalcbar!='False':
             fgmin=np.min([np.min(field) for field in self.pdict.values()])
             fgmax=np.max([np.max(field) for field in self.pdict.values()])
-            # levs=np.linspace(fgmin,fgmax,self.clevels)
             
             gs = gridspec.GridSpec(self.pdims[0], self.pdims[1]+1,\
                     width_ratios=[15]*self.pdims[1]+[1],hspace=hs,wspace=ys)
@@ -221,17 +219,30 @@ class Grid(object):
                     # self.pdict[name]=self.pdict[name].append(ax)
                     self.paxis[name]=ax
 
-                    # import pdb; pdb.set_trace()
-                    if len(self.cbars.keys())!=0:
-                        if self.clevels!=0:
-                            cs1=ax.contourf(field,levels=np.linspace(np.min(field),np.max(field),self.clevels),cmap=self.cbars[name])
+                    #
+                    if self.globalcbar=='False': #when we are NOT using globalcbar
+                        if len(self.cbars.keys())!=0:
+                            if self.clevels!=0:
+                                cs1=ax.contourf(field,levels=np.linspace(np.min(field),np.max(field),self.clevels),cmap=self.cbars[name])
+                            else:
+                                cs1=ax.contourf(field,cmap=self.cbars[name])
                         else:
-                            cs1=ax.contourf(field,cmap=self.cbars[name])
-                    else:
+                            if self.clevels!=0:
+                                cs1=ax.contourf(field,levels=np.linspace(np.min(field),np.max(field),self.clevels))
+                            else:
+                                cs1=ax.contourf(field)
+                    else: #when a globalcbar is being used
                         if self.clevels!=0:
-                            cs1=ax.contourf(field,levels=np.linspace(np.min(field),np.max(field),self.clevels))
+                            if self.globalcbar=='True':
+                                cs1=ax.contourf(field,levels=np.linspace(fgmin,fgmax,self.clevels))
+                            else:
+                                cs1=ax.contourf(field,levels=np.linspace(fgmin,fgmax,self.clevels),cmap=self.globalcbar)
                         else:
-                            cs1=ax.contourf(field)
+                            if self.globalcbar=='True':
+                                cs1=ax.contourf(field,levels=np.linspace(fgmin,fgmax,7)) #defaulting to seven here!
+                            else:
+                                cs1=ax.contourf(field,levels=np.linspace(fgmin,fgmax,7),cmap=self.globalcbar) #defaulting to seven here!
+
 
                     if self.sepcbar or len(self.cbars.keys())!=0:
                         #separate colorbars
@@ -250,7 +261,7 @@ class Grid(object):
                         if colnum==0:
                             ax.set_ylabel(label[1])
 
-                        if rownum==0:
+                        if rownum==self.pdims[0]-1:
                             ax.set_xlabel(label[0])
 
                     # ax.set_title(name)
@@ -259,7 +270,7 @@ class Grid(object):
                     pnum+=1
 
         if self.globalcbar!='False':
-            ax1 = plt.subplot(gs[0:self.pdims[0]+1,self.pdims[1]+1])
+            ax1 = plt.subplot(gs[0:self.pdims[0]+1,self.pdims[1]])
             plt.colorbar(cs1,cax=ax1,orientation='vertical')
 
         if self.outputpath!='':

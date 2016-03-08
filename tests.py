@@ -32,15 +32,20 @@ def Grid_example(plotoutputs):
     plotdict=collections.OrderedDict()
     dimlab=collections.OrderedDict()
     colorbars=collections.OrderedDict()
-    cnts=[str(cnt) for cnt in np.arange(11)+1]
+    cnts=[str(cnt) for cnt in np.arange(12)+1]
     for cnt in cnts:
-        plotdict[cnt]=np.random.rand(200,150)
+        #plotdict[cnt]=np.random.rand(200,150)
+        plotdict[cnt]=np.random.rand(20,15)
         dimlab[cnt]=('xlabel','ylabel')
         colorbars[cnt]=colormaps.next()
 
     plth.Grid(plotdict,(4,3),dimlabels=dimlab,sepcbar=True,outputpath=plotoutputs+'GridEgDimLabSepcbar.png')
     plth.Grid(plotdict,(4,3),dimlabels=dimlab,cbars=colorbars,outputpath=plotoutputs+'GridEgDimLabcbars.png')
     plth.Grid(plotdict,(4,3),dimlabels=dimlab,cbars=colorbars,clevels=8,outputpath=plotoutputs+'GridEgDimLabclevelscbars.png')
+
+    plth.Grid(plotdict,(4,3),dimlabels=dimlab,globalcbar='True',clevels=20,sharex=True,sharey=True,outputpath=plotoutputs+'GridEgDimLabShareXShareYglobalcbarclevels.png')
+
+    plth.Grid(plotdict,(4,3),dimlabels=dimlab,globalcbar='Accent',clevels=20,sharex=True,sharey=True,outputpath=plotoutputs+'GridEgDimLabShareXShareYglobalcbarAccentclevels.png')
 
     plth.Grid(plotdict,(4,3),sharex=True,outputpath=plotoutputs+'GridEgShareX.png')
     plth.Grid(plotdict,(4,3),sharey=True,outputpath=plotoutputs+'GridEgSHareY.png')
@@ -55,6 +60,7 @@ if __name__ == "__main__":
 
     plot_output_folder='/home/chris/codescratch/plthacks/testplots/'
     plot_output_folder='/home/chris/repos/plthacks/testplots/'
+    plot_output_folder='/tmp/testplots/'
 
     Grid_example(plot_output_folder)
 
