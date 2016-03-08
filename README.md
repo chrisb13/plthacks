@@ -15,7 +15,7 @@ Dependencies
 ============                                                                                                                         
 * python 2.x              
 * matplotlib
-* numpy (for the tests)
+* numpy
 
 Usage and Examples
 ==================

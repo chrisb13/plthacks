@@ -20,6 +20,7 @@ import itertools
 from matplotlib import gridspec
 import matplotlib.pyplot as plt
 import os
+import numpy as np
 
 #for inset axes
 #hacked from:
@@ -78,6 +79,8 @@ class Grid(object):
     sharey (optional): share all the y axis in the grid
     dimlabels (optional): dictionary containing tuples of xlabel and ylabels 
     sepcbar (optional): separate colorbars for each subplot (True or False)
+    cbars (optional): dictionary containing matplotlib colourbars to use
+    clevels (optional): integer for the number of contour levels
     outputpath (optional): full path of file to put plot in (if left out it won't be created)
 
     Returns
@@ -103,12 +106,14 @@ class Grid(object):
     >>> plth.Grid(plotdict,(4,3),dimlabels=dimlab,outputpath=plotoutputs+'GridEgDimLab.png')
     >>> plth.Grid(plotdict,(4,3),sharex=True,sharey=True,dimlabels=dimlab,outputpath=plotoutputs+'GridEgShareXShareYDimLab.png')
     """
-    def __init__(self, pdict,pdims,sharex=False,sharey=False,dimlabels={},sepcbar=False,outputpath=''):
+    def __init__(self, pdict,pdims,sharex=False,sharey=False,clevels=0,dimlabels={},sepcbar=False,cbars={},outputpath=''):
         _lg.info("Creating a gridded plot from your passed dict")
         self.pdict,self.pdims = pdict,pdims
         self.sharex,self.sharey=sharex,sharey
         self.dimlabels=dimlabels
         self.sepcbar=sepcbar
+        self.cbars=cbars
+        self.clevels=clevels
         self.outputpath=outputpath
         self.mkplot()
 
@@ -123,9 +128,10 @@ class Grid(object):
         plt.close('all')
         #width then height
         fig=plt.figure(figsize=(self.pdims[0]*4, self.pdims[1]*4))
-        #the other option
-        #fig.set_size_inches(7.5,15.5)
-        
+
+        if self.sepcbar:
+            fig=plt.figure(figsize=(self.pdims[0]*4, self.pdims[1]*5))
+
         if self.sharex:
             hs=.06
 
@@ -143,7 +149,7 @@ class Grid(object):
 
         #make more space for lots of ylabels..
         if not self.sharey:
-            ys+=.06
+            ys+=.08
 
         gs = gridspec.GridSpec(self.pdims[0], self.pdims[1],hspace=hs,wspace=ys)
 
@@ -158,69 +164,85 @@ class Grid(object):
         ax_xshares=[]
         ax_yshares=[]
         self.paxis={}
+        pnum=1
         for rownum in range(self.pdims[0]):
             for colnum in range(self.pdims[1]):
-                # print rownum,colnum
+                if pnum<=subplotnum:
+                    # print rownum,colnum
+                    # print pnum,subplotnum
 
-                #contour plot
-                name=names.next()
-                field=fields.next()
-                if labelme:
-                    label=labels.next()
-
-                #put it in a list so we can append
-                # self.pdict[name]=[self.pdict[name]]
-
-                if rownum==0:
-                    ax=plt.subplot(gs[rownum,colnum])
-                    ax_xshares.append(ax)
-
-                #this if needs to be separate from the one above
-                if colnum==0:
-                    ax=plt.subplot(gs[rownum,colnum])
-                    ax_yshares.append(ax)
-
-                if self.sharex and rownum>0:
-                    ax=plt.subplot(gs[rownum,colnum],sharex=ax_xshares[colnum])
-
-                if self.sharey and colnum>0:
-                    ax=plt.subplot(gs[rownum,colnum],sharey=ax_yshares[rownum])
-
-                    # make labels invisible
-                    plt.setp(ax.get_yticklabels(),visible=False)
-
-                if not self.sharey and not self.sharex:
-                    ax=plt.subplot(gs[rownum,colnum])
+                    #contour plot
+                    name=names.next()
+                    field=fields.next()
                     if labelme:
-                        ax.set_xlabel(label[0])
-                        ax.set_ylabel(label[1])
+                        label=labels.next()
 
-                # self.pdict[name]=self.pdict[name].append(ax)
-                self.paxis[name]=ax
-                cs1=ax.contourf(field)
-
-                if self.sepcbar:
-                    #separate colorbars
-                    # Create divider for existing axes instance
-                    divider = make_axes_locatable(ax)
-                    # Append axes to the right of ax, with 20% width of ax
-                    caxis = divider.append_axes("bottom", size="10%", pad=0.45)
-                    plt.colorbar(cs1,cax=caxis,orientation='horizontal')
-
-                # make xlabels invisible
-                if self.sharex and rownum<self.pdims[0]-1:
-                    plt.setp(ax.get_xticklabels(),visible=False)
-
-                #labeling when we are sharing axis
-                if labelme:
-                    if colnum==0:
-                        ax.set_ylabel(label[1])
+                    #put it in a list so we can append
+                    # self.pdict[name]=[self.pdict[name]]
 
                     if rownum==0:
-                        ax.set_xlabel(label[0])
+                        ax=plt.subplot(gs[rownum,colnum])
+                        ax_xshares.append(ax)
 
-                # ax.set_title(name)
-                inset_title_box(ax,name)
+                    #this if needs to be separate from the one above
+                    if colnum==0:
+                        ax=plt.subplot(gs[rownum,colnum])
+                        ax_yshares.append(ax)
+
+                    if self.sharex and rownum>0:
+                        ax=plt.subplot(gs[rownum,colnum],sharex=ax_xshares[colnum])
+
+                    if self.sharey and colnum>0:
+                        ax=plt.subplot(gs[rownum,colnum],sharey=ax_yshares[rownum])
+
+                        # make labels invisible
+                        plt.setp(ax.get_yticklabels(),visible=False)
+
+                    if not self.sharey and not self.sharex:
+                        ax=plt.subplot(gs[rownum,colnum])
+                        if labelme:
+                            ax.set_xlabel(label[0])
+                            ax.set_ylabel(label[1])
+
+                    # self.pdict[name]=self.pdict[name].append(ax)
+                    self.paxis[name]=ax
+
+                    # import pdb; pdb.set_trace()
+                    if len(self.cbars.keys())!=0:
+                        if self.clevels!=0:
+                            cs1=ax.contourf(field,levels=np.linspace(np.min(field),np.max(field),self.clevels),cmap=self.cbars[name])
+                        else:
+                            cs1=ax.contourf(field,cmap=self.cbars[name])
+                    else:
+                        if self.clevels!=0:
+                            cs1=ax.contourf(field,levels=np.linspace(np.min(field),np.max(field),self.clevels))
+                        else:
+                            cs1=ax.contourf(field)
+
+                    if self.sepcbar or len(self.cbars.keys())!=0:
+                        #separate colorbars
+                        # Create divider for existing axes instance
+                        divider = make_axes_locatable(ax)
+                        # Append axes to the right of ax, with 20% width of ax
+                        caxis = divider.append_axes("bottom", size="10%", pad=0.45)
+                        plt.colorbar(cs1,cax=caxis,orientation='horizontal')
+
+                    # make xlabels invisible
+                    if self.sharex and rownum<self.pdims[0]-1:
+                        plt.setp(ax.get_xticklabels(),visible=False)
+
+                    #labeling when we are sharing axis
+                    if labelme:
+                        if colnum==0:
+                            ax.set_ylabel(label[1])
+
+                        if rownum==0:
+                            ax.set_xlabel(label[0])
+
+                    # ax.set_title(name)
+                    inset_title_box(ax,name)
+
+                    pnum+=1
 
         if self.outputpath!='':
             mkdir(os.path.dirname(self.outputpath))

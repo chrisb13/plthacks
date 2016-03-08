@@ -21,28 +21,32 @@ sys.path.insert(0,os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 import plthacks as plth 
 import collections
 import numpy as np
+import itertools
 
 def Grid_example(plotoutputs):
-    """@todo: Docstring for Grid_example
-    :returns: @todo
+    """function to test and demo the utility of the Grid Class
+    :returns: a bunch of plots
     """
+    colormaps=itertools.cycle(['Accent', 'Dark2', 'Paired', 'Pastel1',\
+            'Pastel2', 'Set1', 'Set2', 'Set3'])
     plotdict=collections.OrderedDict()
     dimlab=collections.OrderedDict()
+    colorbars=collections.OrderedDict()
     cnts=[str(cnt) for cnt in np.arange(11)+1]
     for cnt in cnts:
-        plotdict[cnt]=np.random.rand(20,15)
+        plotdict[cnt]=np.random.rand(200,150)
         dimlab[cnt]=('xlabel','ylabel')
+        colorbars[cnt]=colormaps.next()
 
-    # plth.Grid(plotdict,(4,3),dimlabels=dimlab,sepcbar=True,outputpath=plotoutputs+'GridEgDimLabSepcbar.png')
+    plth.Grid(plotdict,(4,3),dimlabels=dimlab,sepcbar=True,outputpath=plotoutputs+'GridEgDimLabSepcbar.png')
+    plth.Grid(plotdict,(4,3),dimlabels=dimlab,cbars=colorbars,outputpath=plotoutputs+'GridEgDimLabcbars.png')
+    plth.Grid(plotdict,(4,3),dimlabels=dimlab,cbars=colorbars,clevels=8,outputpath=plotoutputs+'GridEgDimLabclevelscbars.png')
 
-    #not recommended right now...
-    # plth.Grid(plotdict,(4,3),sharex=True,sharey=True,sepcbar=True,outputpath=plotoutputs+'GridEgShareXShareYSepcbar.png') 
-
-    # plth.Grid(plotdict,(4,3),sharex=True,outputpath=plotoutputs+'GridEgShareX.png')
-    # plth.Grid(plotdict,(4,3),sharey=True,outputpath=plotoutputs+'GridEgSHareY.png')
-    # plth.Grid(plotdict,(4,3),sharex=True,sharey=True,outputpath=plotoutputs+'GridEgShareXShareY.png')
-    # plth.Grid(plotdict,(4,3),dimlabels=dimlab,outputpath=plotoutputs+'GridEgDimLab.png')
-    # plth.Grid(plotdict,(4,3),sharex=True,sharey=True,dimlabels=dimlab,outputpath=plotoutputs+'GridEgShareXShareYDimLab.png')
+    plth.Grid(plotdict,(4,3),sharex=True,outputpath=plotoutputs+'GridEgShareX.png')
+    plth.Grid(plotdict,(4,3),sharey=True,outputpath=plotoutputs+'GridEgSHareY.png')
+    plth.Grid(plotdict,(4,3),sharex=True,sharey=True,outputpath=plotoutputs+'GridEgShareXShareY.png')
+    plth.Grid(plotdict,(4,3),dimlabels=dimlab,outputpath=plotoutputs+'GridEgDimLab.png')
+    plth.Grid(plotdict,(4,3),sharex=True,sharey=True,dimlabels=dimlab,outputpath=plotoutputs+'GridEgShareXShareYDimLab.png')
 
 if __name__ == "__main__": 
     from _cblogger import _LogStart
@@ -50,6 +54,7 @@ if __name__ == "__main__":
     #put useful code here!
 
     plot_output_folder='/home/chris/codescratch/plthacks/testplots/'
+    plot_output_folder='/home/chris/repos/plthacks/testplots/'
 
     Grid_example(plot_output_folder)
 
