@@ -79,6 +79,7 @@ class Grid(object):
     sharey (optional): share all the y axis in the grid
     dimlabels (optional): dictionary containing tuples of xlabel and ylabels 
     sepcbar (optional): separate colorbars for each subplot (True or False)
+    globalcbar (optional): a single colorbar for the whole plot (string where the options are: 'True' which will use default colormap or name of matplotlib colormap)
     cbars (optional): dictionary containing matplotlib colourbars to use
     clevels (optional): integer for the number of contour levels
     outputpath (optional): full path of file to put plot in (if left out it won't be created)
@@ -88,6 +89,7 @@ class Grid(object):
     
     Notes
     -------
+    * If you use sepcbar, then best not to use sharex or sharey.
     
 
     Example
@@ -106,12 +108,13 @@ class Grid(object):
     >>> plth.Grid(plotdict,(4,3),dimlabels=dimlab,outputpath=plotoutputs+'GridEgDimLab.png')
     >>> plth.Grid(plotdict,(4,3),sharex=True,sharey=True,dimlabels=dimlab,outputpath=plotoutputs+'GridEgShareXShareYDimLab.png')
     """
-    def __init__(self, pdict,pdims,sharex=False,sharey=False,clevels=0,dimlabels={},sepcbar=False,cbars={},outputpath=''):
+    def __init__(self, pdict,pdims,sharex=False,sharey=False,clevels=0,dimlabels={},sepcbar=False,globalcbar='False',cbars={},outputpath=''):
         _lg.info("Creating a gridded plot from your passed dict")
         self.pdict,self.pdims = pdict,pdims
         self.sharex,self.sharey=sharex,sharey
         self.dimlabels=dimlabels
         self.sepcbar=sepcbar
+        self.globalcbar=globalcbar
         self.cbars=cbars
         self.clevels=clevels
         self.outputpath=outputpath
@@ -151,7 +154,17 @@ class Grid(object):
         if not self.sharey:
             ys+=.08
 
-        gs = gridspec.GridSpec(self.pdims[0], self.pdims[1],hspace=hs,wspace=ys)
+
+        #working out the global min and maxes of all fields so we can have one colourbar
+        if self.globalcbar!='False':
+            fgmin=np.min([np.min(field) for field in self.pdict.values()])
+            fgmax=np.max([np.max(field) for field in self.pdict.values()])
+            # levs=np.linspace(fgmin,fgmax,self.clevels)
+            
+            gs = gridspec.GridSpec(self.pdims[0], self.pdims[1]+1,\
+                    width_ratios=[15]*self.pdims[1]+[1],hspace=hs,wspace=ys)
+        else:
+            gs = gridspec.GridSpec(self.pdims[0], self.pdims[1],hspace=hs,wspace=ys)
 
         names=itertools.cycle(self.pdict.keys())
         fields=itertools.cycle(self.pdict.values())
@@ -178,6 +191,7 @@ class Grid(object):
                         label=labels.next()
 
                     #put it in a list so we can append
+                    #bad idea messing with the passed items if we iterate on the object (see tests)
                     # self.pdict[name]=[self.pdict[name]]
 
                     if rownum==0:
@@ -243,6 +257,10 @@ class Grid(object):
                     inset_title_box(ax,name)
 
                     pnum+=1
+
+        if self.globalcbar!='False':
+            ax1 = plt.subplot(gs[0:self.pdims[0]+1,self.pdims[1]+1])
+            plt.colorbar(cs1,cax=ax1,orientation='vertical')
 
         if self.outputpath!='':
             mkdir(os.path.dirname(self.outputpath))
