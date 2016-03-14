@@ -1,6 +1,8 @@
 # plthacks v0.1
 Python wrapper library for Matplotlib convenience functions.
 
+See this [blog post](http://christopherbull.com.au/python/wrapping-plt-gridding-subplots/) for a demo.
+
 Installation
 ============
 This software has only been tested on Linux and only for python 2.x.
