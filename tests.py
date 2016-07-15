@@ -53,6 +53,10 @@ def Grid_example(plotoutputs):
     plth.Grid(plotdict,(4,3),dimlabels=dimlab,outputpath=plotoutputs+'GridEgDimLab.png')
     plth.Grid(plotdict,(4,3),sharex=True,sharey=True,dimlabels=dimlab,outputpath=plotoutputs+'GridEgShareXShareYDimLab.png')
 
+    plth.Grid(plotdict,(4,3),sharex=True,sharey=True,dimlabels=dimlab,globalcbar='seismic',globalcbarmiddle=0,clevels=20,outputpath=plotoutputs+'GridEgShareXShareYDimLabGlobalcbarCustomGlobalcbarmiddleClevs.png')
+    plth.Grid(plotdict,(4,3),sharex=True,sharey=True,dimlabels=dimlab,globalcbar='seismic',globalcbarmiddle=0,outputpath=plotoutputs+'GridEgShareXShareYDimLabGlobalcbarCustomGlobalcbarmiddle.png')
+    plth.Grid(plotdict,(4,3),sharex=True,sharey=True,dimlabels=dimlab,globalcbar='True',globalcbarmiddle=0.8,outputpath=plotoutputs+'GridEgShareXShareYDimLabGlobalcbarCustomGlobalcbarmiddle.png')
+
 if __name__ == "__main__": 
     from _cblogger import _LogStart
     _lg=_LogStart().setup()

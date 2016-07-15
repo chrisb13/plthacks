@@ -33,6 +33,11 @@ from mpl_toolkits.axes_grid1.anchored_artists import AnchoredSizeBar
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib.ticker import MultipleLocator
 
+import math
+import copy
+from matplotlib import colors
+import matplotlib
+
 def mkdir(p):
     """make directory of path that is passed"""
     try:
@@ -67,6 +72,49 @@ def inset_title_box(ax,title,bwidth="20%",location=1):
             horizontalalignment='center',
             transform=axins.transAxes,size=10)
 
+def cmap_center_point_adjust(cmap, range, center):
+    '''
+    converts center to a ratio between 0 and 1 of the
+    range given and calls cmap_center_adjust(). returns
+    a new adjusted colormap accordingly
+
+    NB: nicked from https://sites.google.com/site/theodoregoetz/notes/matplotlib_colormapadjust
+    '''
+
+    def cmap_center_adjust(cmap, center_ratio):
+        '''
+        returns a new colormap based on the one given
+        but adjusted so that the old center point higher
+        (>0.5) or lower (<0.5)
+        '''
+        if not (0. < center_ratio) & (center_ratio < 1.):
+            return cmap
+        a = math.log(center_ratio) / math.log(0.5)
+        return cmap_powerlaw_adjust(cmap, a)
+
+    def cmap_powerlaw_adjust(cmap, a):
+        '''
+        returns a new colormap based on the one given
+        but adjusted via power-law:
+
+        newcmap = oldcmap**a
+        '''
+        if a < 0.:
+            return cmap
+        cdict = copy.copy(cmap._segmentdata)
+        fn = lambda x : (x[0]**a, x[1], x[2])
+        for key in ('red','green','blue'):
+            cdict[key] = map(fn, cdict[key])
+            cdict[key].sort()
+            assert (cdict[key][0]<0 or cdict[key][-1]>1), \
+                "Resulting indices extend out of the [0, 1] segment."
+        return colors.LinearSegmentedColormap('colormap',cdict,1024)
+
+    if not ((range[0] < center) and (center < range[1])):
+        return cmap
+    return cmap_center_adjust(cmap,
+        abs(center - range[0]) / abs(range[1] - range[0]))
+
 class Grid(object):
     """
     Class to create a gridded set of subplots from a dictionary.
@@ -80,6 +128,7 @@ class Grid(object):
     dimlabels (optional): dictionary containing tuples of xlabel and ylabels 
     sepcbar (optional): separate colorbars for each subplot (True or False)
     globalcbar (optional): a single colorbar for the whole plot (string where the options are: 'True' which will use default colormap or name of matplotlib colormap)
+    globalcbarmiddle (optional): set the middle of the single colorbar for the whole plot
     cbars (optional): dictionary containing matplotlib colourbars to use
     clevels (optional): integer for the number of contour levels
     outputpath (optional): full path of file to put plot in (if left out it won't be created)
@@ -108,13 +157,14 @@ class Grid(object):
     >>> Grid(plotdict,(4,3),dimlabels=dimlab,outputpath=plotoutputs+'GridEgDimLab.png')
     >>> Grid(plotdict,(4,3),sharex=True,sharey=True,dimlabels=dimlab,outputpath=plotoutputs+'GridEgShareXShareYDimLab.png')
     """
-    def __init__(self, pdict,pdims,sharex=False,sharey=False,clevels=0,dimlabels={},sepcbar=False,globalcbar='False',cbars={},outputpath=''):
+    def __init__(self, pdict,pdims,sharex=False,sharey=False,clevels=0,dimlabels={},sepcbar=False,globalcbar='False',globalcbarmiddle=False,cbars={},outputpath=''):
         _lg.info("Creating a gridded plot from your passed dict")
         self.pdict,self.pdims = pdict,pdims
         self.sharex,self.sharey=sharex,sharey
         self.dimlabels=dimlabels
         self.sepcbar=sepcbar
         self.globalcbar=globalcbar
+        self.globalcbarmiddle=globalcbarmiddle
         self.cbars=cbars
         self.clevels=clevels
         self.outputpath=outputpath
@@ -232,16 +282,25 @@ class Grid(object):
                             else:
                                 cs1=ax.contourf(field)
                     else: #when a globalcbar is being used
+
+                        #what if we wanted a new centre?
+                        if self.globalcbarmiddle:
+                            if self.globalcbar=='True':
+                                self.globalcbar='jet'
+                            colourmap=cmap_center_point_adjust(matplotlib.cm.get_cmap(self.globalcbar),(fgmin,fgmax),self.globalcbarmiddle)
+                        else:
+                            colourmap=self.globalcbar
+
                         if self.clevels!=0:
                             if self.globalcbar=='True':
                                 cs1=ax.contourf(field,levels=np.linspace(fgmin,fgmax,self.clevels))
                             else:
-                                cs1=ax.contourf(field,levels=np.linspace(fgmin,fgmax,self.clevels),cmap=self.globalcbar)
+                                    cs1=ax.contourf(field,levels=np.linspace(fgmin,fgmax,self.clevels),cmap=colourmap)
                         else:
                             if self.globalcbar=='True':
                                 cs1=ax.contourf(field,levels=np.linspace(fgmin,fgmax,7)) #defaulting to seven here!
                             else:
-                                cs1=ax.contourf(field,levels=np.linspace(fgmin,fgmax,7),cmap=self.globalcbar) #defaulting to seven here!
+                                cs1=ax.contourf(field,levels=np.linspace(fgmin,fgmax,7),cmap=colourmap) #defaulting to seven here!
 
 
                     if self.sepcbar or len(self.cbars.keys())!=0:
