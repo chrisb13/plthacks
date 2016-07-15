@@ -127,10 +127,12 @@ class Grid(object):
     sharey (optional): share all the y axis in the grid
     dimlabels (optional): dictionary containing tuples of xlabel and ylabels 
     sepcbar (optional): separate colorbars for each subplot (True or False)
-    globalcbar (optional): a single colorbar for the whole plot (string where the options are: 'True' which will use default colormap or name of matplotlib colormap)
+    globalclimits (optional): a single colorbar for the whole plot, where you manually specify the colour range
+    globalcbar (optional): a single colorbar for the whole plot (string where the options are: 'True' which will use default colormap or name of matplotlib colormap). The format is: (cmin,cmax)
     globalcbarmiddle (optional): set the middle of the single colorbar for the whole plot
     cbars (optional): dictionary containing matplotlib colourbars to use
     clevels (optional): integer for the number of contour levels
+    zoom (optional): integer tuple to zoom in on the plots of the form ((xmin,xmax),(ymin,ymax))
     outputpath (optional): full path of file to put plot in (if left out it won't be created)
 
     Returns
@@ -139,6 +141,7 @@ class Grid(object):
     Notes
     -------
     * If you use sepcbar, then best not to use sharex or sharey.
+    * Many of the globalcbar options depend on a colour or 'True' being passed to globalcbar.
     
 
     Example
@@ -156,18 +159,23 @@ class Grid(object):
     >>> Grid(plotdict,(4,3),sharex=True,sharey=True,outputpath=plotoutputs+'GridEgShareXShareY.png')
     >>> Grid(plotdict,(4,3),dimlabels=dimlab,outputpath=plotoutputs+'GridEgDimLab.png')
     >>> Grid(plotdict,(4,3),sharex=True,sharey=True,dimlabels=dimlab,outputpath=plotoutputs+'GridEgShareXShareYDimLab.png')
+    >>> plth.Grid(plotdict,(4,3),sharex=True,sharey=True,dimlabels=dimlab,globalcbar='True',globalcbarmiddle=0.8,zoom=((3,5),(5,10)),outputpath=plotoutputs+'GridEgShareXShareYDimLabGlobalcbarCustomGlobalcbarmiddleZoom.png')
+    >>> plth.Grid(plotdict,(4,3),sharex=True,sharey=True,dimlabels=dimlab,globalcbar='True',globalcbarmiddle=0.8,globalclimits)
+    >>> plth.Grid(plotdict,(4,3),sharex=True,sharey=True,dimlabels=dimlab,globalcbar='seismic',globalcbarmiddle=0.3,globalclimits=(0.15,0.78))
     """
-    def __init__(self, pdict,pdims,sharex=False,sharey=False,clevels=0,dimlabels={},sepcbar=False,globalcbar='False',globalcbarmiddle=False,cbars={},outputpath=''):
+    def __init__(self, pdict,pdims,sharex=False,sharey=False,clevels=0,dimlabels={},sepcbar=False,globalclimits=None,globalcbar='False',globalcbarmiddle=False,cbars={},zoom=None,outputpath=''):
         _lg.info("Creating a gridded plot from your passed dict")
         self.pdict,self.pdims = pdict,pdims
         self.sharex,self.sharey=sharex,sharey
         self.dimlabels=dimlabels
         self.sepcbar=sepcbar
+        self.globalclimits=globalclimits
         self.globalcbar=globalcbar
         self.globalcbarmiddle=globalcbarmiddle
         self.cbars=cbars
         self.clevels=clevels
         self.outputpath=outputpath
+        self.zoom=zoom
         self.mkplot()
 
     def mkplot(self):
@@ -208,6 +216,10 @@ class Grid(object):
         if self.globalcbar!='False':
             fgmin=np.min([np.min(field) for field in self.pdict.values()])
             fgmax=np.max([np.max(field) for field in self.pdict.values()])
+
+            if self.globalclimits is not None:
+                fgmin=self.globalclimits[0]
+                fgmax=self.globalclimits[1]
             
             gs = gridspec.GridSpec(self.pdims[0], self.pdims[1]+1,\
                     width_ratios=[15]*self.pdims[1]+[1],hspace=hs,wspace=ys)
@@ -322,6 +334,10 @@ class Grid(object):
 
                         if rownum==self.pdims[0]-1:
                             ax.set_xlabel(label[0])
+
+                    if self.zoom is not None:
+                        ax.set_xlim([self.zoom[0][0],self.zoom[0][1]])
+                        ax.set_ylim([self.zoom[1][0],self.zoom[1][1]])
 
                     # ax.set_title(name)
                     inset_title_box(ax,name)

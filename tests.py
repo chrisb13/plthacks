@@ -39,23 +39,27 @@ def Grid_example(plotoutputs):
         dimlab[cnt]=('xlabel','ylabel')
         colorbars[cnt]=colormaps.next()
 
-    plth.Grid(plotdict,(4,3),dimlabels=dimlab,sepcbar=True,outputpath=plotoutputs+'GridEgDimLabSepcbar.png')
-    plth.Grid(plotdict,(4,3),dimlabels=dimlab,cbars=colorbars,outputpath=plotoutputs+'GridEgDimLabcbars.png')
-    plth.Grid(plotdict,(4,3),dimlabels=dimlab,cbars=colorbars,clevels=8,outputpath=plotoutputs+'GridEgDimLabclevelscbars.png')
+    # plth.Grid(plotdict,(4,3),dimlabels=dimlab,sepcbar=True,outputpath=plotoutputs+'GridEgDimLabSepcbar.png')
+    # plth.Grid(plotdict,(4,3),dimlabels=dimlab,cbars=colorbars,outputpath=plotoutputs+'GridEgDimLabcbars.png')
+    # plth.Grid(plotdict,(4,3),dimlabels=dimlab,cbars=colorbars,clevels=8,outputpath=plotoutputs+'GridEgDimLabclevelscbars.png')
 
-    plth.Grid(plotdict,(4,3),dimlabels=dimlab,globalcbar='True',clevels=20,sharex=True,sharey=True,outputpath=plotoutputs+'GridEgDimLabShareXShareYglobalcbarclevels.png')
+    # plth.Grid(plotdict,(4,3),dimlabels=dimlab,globalcbar='True',clevels=20,sharex=True,sharey=True,outputpath=plotoutputs+'GridEgDimLabShareXShareYglobalcbarclevels.png')
 
-    plth.Grid(plotdict,(4,3),dimlabels=dimlab,globalcbar='Accent',clevels=20,sharex=True,sharey=True,outputpath=plotoutputs+'GridEgDimLabShareXShareYglobalcbarAccentclevels.png')
+    # plth.Grid(plotdict,(4,3),dimlabels=dimlab,globalcbar='Accent',clevels=20,sharex=True,sharey=True,outputpath=plotoutputs+'GridEgDimLabShareXShareYglobalcbarAccentclevels.png')
 
-    plth.Grid(plotdict,(4,3),sharex=True,outputpath=plotoutputs+'GridEgShareX.png')
-    plth.Grid(plotdict,(4,3),sharey=True,outputpath=plotoutputs+'GridEgSHareY.png')
-    plth.Grid(plotdict,(4,3),sharex=True,sharey=True,outputpath=plotoutputs+'GridEgShareXShareY.png')
-    plth.Grid(plotdict,(4,3),dimlabels=dimlab,outputpath=plotoutputs+'GridEgDimLab.png')
-    plth.Grid(plotdict,(4,3),sharex=True,sharey=True,dimlabels=dimlab,outputpath=plotoutputs+'GridEgShareXShareYDimLab.png')
+    # plth.Grid(plotdict,(4,3),sharex=True,outputpath=plotoutputs+'GridEgShareX.png')
+    # plth.Grid(plotdict,(4,3),sharey=True,outputpath=plotoutputs+'GridEgSHareY.png')
+    # plth.Grid(plotdict,(4,3),sharex=True,sharey=True,outputpath=plotoutputs+'GridEgShareXShareY.png')
+    # plth.Grid(plotdict,(4,3),dimlabels=dimlab,outputpath=plotoutputs+'GridEgDimLab.png')
+    # plth.Grid(plotdict,(4,3),sharex=True,sharey=True,dimlabels=dimlab,outputpath=plotoutputs+'GridEgShareXShareYDimLab.png')
 
-    plth.Grid(plotdict,(4,3),sharex=True,sharey=True,dimlabels=dimlab,globalcbar='seismic',globalcbarmiddle=0,clevels=20,outputpath=plotoutputs+'GridEgShareXShareYDimLabGlobalcbarCustomGlobalcbarmiddleClevs.png')
-    plth.Grid(plotdict,(4,3),sharex=True,sharey=True,dimlabels=dimlab,globalcbar='seismic',globalcbarmiddle=0,outputpath=plotoutputs+'GridEgShareXShareYDimLabGlobalcbarCustomGlobalcbarmiddle.png')
-    plth.Grid(plotdict,(4,3),sharex=True,sharey=True,dimlabels=dimlab,globalcbar='True',globalcbarmiddle=0.8,outputpath=plotoutputs+'GridEgShareXShareYDimLabGlobalcbarCustomGlobalcbarmiddle.png')
+    # plth.Grid(plotdict,(4,3),sharex=True,sharey=True,dimlabels=dimlab,globalcbar='seismic',globalcbarmiddle=0,clevels=20,outputpath=plotoutputs+'GridEgShareXShareYDimLabGlobalcbarCustomGlobalcbarmiddleClevs.png')
+    # plth.Grid(plotdict,(4,3),sharex=True,sharey=True,dimlabels=dimlab,globalcbar='seismic',globalcbarmiddle=0,outputpath=plotoutputs+'GridEgShareXShareYDimLabGlobalcbarCustomGlobalcbarmiddle.png')
+    # plth.Grid(plotdict,(4,3),sharex=True,sharey=True,dimlabels=dimlab,globalcbar='True',globalcbarmiddle=0.8,outputpath=plotoutputs+'GridEgShareXShareYDimLabGlobalcbarCustomGlobalcbarmiddle.png')
+
+    # plth.Grid(plotdict,(4,3),sharex=True,sharey=True,dimlabels=dimlab,globalcbar='True',globalcbarmiddle=0.8,zoom=((3,5),(5,10)),outputpath=plotoutputs+'GridEgShareXShareYDimLabGlobalcbarCustomGlobalcbarmiddleZoom.png')
+
+    plth.Grid(plotdict,(4,3),sharex=True,sharey=True,dimlabels=dimlab,globalcbar='seismic',globalcbarmiddle=0.3,globalclimits=(0.15,0.78),outputpath=plotoutputs+'GridEgShareXShareYDimLabGlobalcbarCustomGlobalcbarmiddleGlobalclimits.png')
 
 if __name__ == "__main__": 
     from _cblogger import _LogStart
